@@ -25,30 +25,30 @@ export const FloodControls: React.FC<FloodControlsProps> = ({
   onReset,
 }) => {
   return (
-    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm font-sans">
-      
-      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3.5">
+    <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs font-sans transition-colors duration-200">
+
+      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
         <div className="flex items-center space-x-2">
-          <Sliders className="w-4 h-4 text-cyan-700" />
-          <h3 className="text-xs font-bold text-slate-800">
+          <Sliders className="w-4 h-4 text-sky-700 dark:text-sky-400" />
+          <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
             Hydrological Forcing Controls
           </h3>
         </div>
-        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-medium">
+        <span className="text-[11px] text-slate-600 dark:text-slate-400 bg-slate-100/80 dark:bg-slate-800/80 px-2.5 py-0.5 rounded-full font-medium border border-slate-200/80 dark:border-slate-700/80">
           Manual Telemetry Overrides
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        
+      <div className="grid grid-cols-1 gap-3">
+
         {/* Rainfall Intensity Slider */}
-        <div className="space-y-1.5">
+        <div className="space-y-2 bg-slate-50/70 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200/70 dark:border-slate-700/60">
           <div className="flex items-center justify-between text-xs">
-            <span className="flex items-center space-x-1.5 font-semibold text-slate-700">
-              <CloudRain className="w-4 h-4 text-cyan-600" />
+            <span className="flex items-center space-x-1.5 font-semibold text-slate-700 dark:text-slate-200">
+              <CloudRain className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <span>Rainfall Intensity</span>
             </span>
-            <span className="font-bold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
+            <span className="font-bold font-mono text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/50 px-2.5 py-0.5 rounded-full border border-sky-200 dark:border-sky-800/60">
               {rainfall} mm / 6h
             </span>
           </div>
@@ -59,9 +59,9 @@ export const FloodControls: React.FC<FloodControlsProps> = ({
             step="2"
             value={rainfall}
             onChange={(e) => onRainfallChange(Number(e.target.value))}
-            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-600"
+            className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-600"
           />
-          <div className="flex justify-between text-[11px] text-slate-400">
+          <div className="flex justify-between text-[10.5px] text-slate-400 dark:text-slate-500 font-medium">
             <span>0 mm (Normal)</span>
             <span>100 mm (Heavy)</span>
             <span>200 mm (Extreme)</span>
@@ -69,13 +69,13 @@ export const FloodControls: React.FC<FloodControlsProps> = ({
         </div>
 
         {/* River Stage Slider */}
-        <div className="space-y-1.5">
+        <div className="space-y-2 bg-slate-50/70 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200/70 dark:border-slate-700/60">
           <div className="flex items-center justify-between text-xs">
-            <span className="flex items-center space-x-1.5 font-semibold text-slate-700">
-              <Waves className="w-4 h-4 text-cyan-600" />
+            <span className="flex items-center space-x-1.5 font-semibold text-slate-700 dark:text-slate-200">
+              <Waves className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <span>Base River Stage</span>
             </span>
-            <span className="font-bold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
+            <span className="font-bold font-mono text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/50 px-2.5 py-0.5 rounded-full border border-sky-200 dark:border-sky-800/60">
               {riverStage} m
             </span>
           </div>
@@ -86,9 +86,9 @@ export const FloodControls: React.FC<FloodControlsProps> = ({
             step="0.05"
             value={riverStage}
             onChange={(e) => onRiverStageChange(Number(e.target.value))}
-            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-cyan-600"
+            className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-600"
           />
-          <div className="flex justify-between text-[11px] text-slate-400">
+          <div className="flex justify-between text-[10.5px] text-slate-400 dark:text-slate-500 font-medium">
             <span>0.5 m (Baseline)</span>
             <span>3.5 m (Warning)</span>
             <span>6.0 m (Severe)</span>
@@ -96,56 +96,56 @@ export const FloodControls: React.FC<FloodControlsProps> = ({
         </div>
 
         {/* Controls & Speed */}
-        <div className="flex flex-col justify-between gap-2">
-          <span className="text-xs font-semibold text-slate-700">
+        <div className="flex flex-col justify-between gap-2.5 bg-slate-50/70 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200/70 dark:border-slate-700/60">
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
             Engine Controls
           </span>
           <div className="flex items-center space-x-2">
             <button
               onClick={onToggleSimulation}
-              className={`flex-1 flex items-center justify-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors shadow-sm cursor-pointer ${
-                simulationRunning
-                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-              }`}
+              className={`flex-1 flex items-center justify-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ${simulationRunning
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white'
+                  : 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white'
+                }`}
             >
               {simulationRunning ? (
                 <>
                   <Pause className="w-3.5 h-3.5" />
-                  <span>Pause</span>
+                  <span>Pause Engine</span>
                 </>
               ) : (
                 <>
                   <Play className="w-3.5 h-3.5" />
-                  <span>Start</span>
+                  <span>Resume Engine</span>
                 </>
               )}
             </button>
 
             <button
               onClick={onReset}
-              className="flex items-center justify-center space-x-1 px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-semibold transition-colors cursor-pointer"
+              className="flex items-center justify-center space-x-1.5 px-3 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset</span>
             </button>
           </div>
 
-          <div className="flex items-center space-x-1 text-xs text-slate-500 justify-end pt-1 font-sans">
-            <span>Speed:</span>
-            {[1, 2, 5, 10].map((s) => (
-              <button
-                key={s}
-                onClick={() => onSpeedChange(s)}
-                className={`px-2 py-0.5 rounded text-xs font-medium ${
-                  simulationSpeed === s
-                    ? 'bg-cyan-700 text-white font-bold'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {s}x
-              </button>
-            ))}
+          <div className="flex items-center space-x-1 text-xs text-slate-500 dark:text-slate-400 justify-end pt-1 font-sans">
+            <span className="text-[11px]">Speed:</span>
+            <div className="flex bg-white dark:bg-slate-800 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
+              {[1, 2, 5, 10].map((s) => (
+                <button
+                  key={s}
+                  onClick={() => onSpeedChange(s)}
+                  className={`px-2 py-0.5 rounded-md text-xs font-mono font-medium transition-all ${simulationSpeed === s
+                      ? 'bg-slate-900 dark:bg-sky-600 text-white font-bold shadow-2xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                >
+                  {s}x
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -154,3 +154,4 @@ export const FloodControls: React.FC<FloodControlsProps> = ({
     </div>
   );
 };
+

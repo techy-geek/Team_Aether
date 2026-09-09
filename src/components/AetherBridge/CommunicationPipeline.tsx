@@ -18,19 +18,19 @@ export const CommunicationPipeline: React.FC<CommunicationPipelineProps> = ({ da
   ];
 
   return (
-    <div className="bg-white p-3.5 rounded border border-slate-200 shadow-2xs flex flex-col gap-3 font-sans">
+    <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col gap-3.5 font-sans transition-colors duration-200">
       
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+        <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
           TACTICAL SIGNAL PROCESSING PIPELINE
         </h3>
-        <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+        <span className="text-[10.5px] font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/60 font-semibold">
           7 STAGES CONNECTED
         </span>
       </div>
 
       {/* Connected Processing Pipeline */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
         {stages.map((stg, index) => {
           const isLast = index === stages.length - 1;
           const isWarning = stg.status === 'warning';
@@ -39,30 +39,30 @@ export const CommunicationPipeline: React.FC<CommunicationPipelineProps> = ({ da
             <div key={stg.id} className="relative flex flex-col items-center">
               
               {/* Stage Box */}
-              <div className={`w-full p-2.5 rounded border flex flex-col items-center justify-between text-center transition-all ${
+              <div className={`w-full p-3 rounded-xl border flex flex-col items-center justify-between text-center transition-all ${
                 isWarning
-                  ? 'bg-amber-50 border-amber-300 text-amber-900'
-                  : 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-white'
+                  ? 'bg-amber-50/80 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-950 dark:text-amber-200 shadow-2xs ring-1 ring-amber-400/20'
+                  : 'bg-gradient-to-b from-slate-50 to-white dark:from-slate-800/80 dark:to-slate-900/80 border-slate-200 dark:border-slate-700/80 text-slate-800 dark:text-slate-200 hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-2xs'
               }`}>
                 
-                <div className="flex items-center justify-between w-full mb-1 text-[10px]">
-                  <span className="font-mono text-slate-400">#0{stg.id}</span>
-                  <span className={`w-1.5 h-1.5 rounded-full ${isWarning ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'}`} />
+                <div className="flex items-center justify-between w-full mb-1.5 text-[10px]">
+                  <span className="font-mono text-slate-400 dark:text-slate-500 font-semibold">#0{stg.id}</span>
+                  <span className={`w-2 h-2 rounded-full ${isWarning ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'}`} />
                 </div>
 
-                <h4 className="font-bold text-xs font-mono tracking-tight text-slate-900 mb-1">
+                <h4 className="font-bold text-xs font-mono tracking-tight text-slate-900 dark:text-white mb-1.5">
                   {stg.name}
                 </h4>
 
-                <span className="text-[10px] font-mono text-cyan-800 bg-cyan-50 px-1 rounded border border-cyan-100 truncate max-w-full">
+                <span className="text-[10px] font-mono text-teal-900 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded-md border border-teal-200/70 dark:border-teal-800/60 truncate max-w-full font-semibold">
                   {stg.value}
                 </span>
               </div>
 
               {/* Connector Arrow */}
               {!isLast && (
-                <div className="hidden lg:block absolute -right-2 top-1/2 -translate-y-1/2 z-10 text-slate-300">
-                  <ArrowRight className="w-3 h-3" />
+                <div className="hidden lg:block absolute -right-2.5 top-1/2 -translate-y-1/2 z-10 text-slate-300 dark:text-slate-600">
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                 </div>
               )}
 
@@ -72,8 +72,8 @@ export const CommunicationPipeline: React.FC<CommunicationPipelineProps> = ({ da
       </div>
 
       {/* Pipeline Status Indicator */}
-      <div className="w-full bg-slate-100 h-1.5 rounded overflow-hidden relative border border-slate-200">
-        <div className={`h-full bg-cyan-600 transition-all duration-300 ${
+      <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden relative border border-slate-200 dark:border-slate-700 p-0.5">
+        <div className={`h-full bg-gradient-to-r from-teal-500 to-cyan-600 rounded-full transition-all duration-300 ${
           data.pttActive ? 'animate-pulse' : 'w-full'
         }`} />
       </div>
@@ -81,3 +81,4 @@ export const CommunicationPipeline: React.FC<CommunicationPipelineProps> = ({ da
     </div>
   );
 };
+
