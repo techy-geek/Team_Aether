@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, ChevronDown, Sun, Moon, Volume2, VolumeX, BellOff } from 'lucide-react';
+import { Shield, Sun, Moon, Volume2, VolumeX, BellOff } from 'lucide-react';
 import type { RiskLevel } from '../types/simulation';
 
 interface HeaderProps {
