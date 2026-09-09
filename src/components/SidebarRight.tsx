@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Activity, Bell, ChevronDown } from 'lucide-react';
 import type { ActiveTab, FloodSenseData, AetherBridgeData, SystemEvent } from '../types/simulation';
-import { RiskLadder } from './FloodSense/RiskLadder';
-import { LinkHealth } from './AetherBridge/LinkHealth';
 
 interface SidebarRightProps {
   activeTab?: ActiveTab;
@@ -21,7 +19,7 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
   const linkHealthPercent = aetherData.noiseInjected ? 42 : aetherData.activeBearer === 'LOCAL VHF' ? 68 : aetherData.activeBearer === 'NTN SATELLITE' ? 76 : 94;
 
   return (
-    <aside className="w-full lg:w-[320px] shrink-0 flex flex-col gap-3 font-sans">
+    <aside className="w-full lg:w-[280px] xl:w-[320px] 2xl:w-[340px] shrink-0 flex flex-col gap-3 font-sans">
 
       {/* Operational Status Header */}
       <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs px-3.5 py-2.5 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs flex items-center justify-between transition-colors duration-200">
@@ -128,13 +126,6 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
         </div>
       </div>
 
-      {/* Dynamic Subsystem Card: RiskLadder (FloodSense) or LinkHealth (AetherBridge) */}
-      {activeTab === 'FLOODSENSE' ? (
-        <RiskLadder currentRisk={floodData.riskLevel} />
-      ) : (
-        <LinkHealth bearers={aetherData.bearers} />
-      )}
-
       {/* Streaming Events List */}
       <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden transition-all duration-200">
         <div
@@ -199,6 +190,33 @@ export const SidebarRight: React.FC<SidebarRightProps> = ({
             <span>Click to expand</span>
             <ChevronDown className="w-3.5 h-3.5" />
           </button>
+        )}
+      </div>
+
+      {/* System Health & Subsystem Status Badges */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-gradient-to-br from-emerald-50/70 to-slate-50 dark:from-emerald-950/30 dark:to-slate-800/60 p-2.5 rounded-2xl border border-emerald-200/70 dark:border-emerald-800/50 shadow-xs flex flex-col items-center justify-center text-center transition-colors duration-200">
+          <span className="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">System Health</span>
+          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">99.98%</span>
+        </div>
+
+        {activeTab === 'FLOODSENSE' ? (
+          <div className="bg-gradient-to-br from-sky-50/70 to-slate-50 dark:from-sky-950/30 dark:to-slate-800/60 p-2.5 rounded-2xl border border-sky-200/70 dark:border-sky-800/50 shadow-xs flex flex-col items-center justify-center text-center transition-colors duration-200">
+            <span className="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">FloodSense</span>
+            <span className={`text-xs font-bold mt-0.5 ${floodData.riskLevel === 'SAFE' ? 'text-emerald-700 dark:text-emerald-400' :
+                floodData.riskLevel === 'WATCH' ? 'text-amber-700 dark:text-amber-400' :
+                  floodData.riskLevel === 'WARNING' ? 'text-orange-700 dark:text-orange-400' : 'text-red-700 dark:text-red-400'
+              }`}>
+              {floodData.riskLevel}
+            </span>
+          </div>
+        ) : (
+          <div className="bg-gradient-to-br from-teal-50/70 to-slate-50 dark:from-teal-950/30 dark:to-slate-800/60 p-2.5 rounded-2xl border border-teal-200/70 dark:border-teal-800/50 shadow-xs flex flex-col items-center justify-center text-center transition-colors duration-200">
+            <span className="text-[10.5px] text-slate-500 dark:text-slate-400 font-medium">AetherBridge</span>
+            <span className={`text-xs font-bold mt-0.5 ${aetherData.linkHealthy ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
+              {aetherData.linkHealthy ? 'HEALTHY' : 'DEGRADED'}
+            </span>
+          </div>
         )}
       </div>
 

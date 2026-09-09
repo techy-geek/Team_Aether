@@ -24,6 +24,15 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
+      if (canvas.parentElement) {
+        const parentW = canvas.parentElement.clientWidth;
+        const parentH = canvas.parentElement.clientHeight || 190;
+        if (canvas.width !== parentW || canvas.height !== parentH) {
+          canvas.width = parentW;
+          canvas.height = parentH;
+        }
+      }
+
       const width = canvas.width;
       const height = canvas.height;
       const centerY = height / 2;

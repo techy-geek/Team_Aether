@@ -4,7 +4,6 @@ import { Header } from './components/Header';
 import { SubsystemsTopBar } from './components/SubsystemsTopBar';
 import { SidebarLeft } from './components/SidebarLeft';
 import { SidebarRight } from './components/SidebarRight';
-import { BottomStatusBar } from './components/BottomStatusBar';
 import { FloodSensePanel } from './components/FloodSense/FloodSensePanel';
 import { AetherBridgePanel } from './components/AetherBridge/AetherBridgePanel';
 import { telemetryAudio } from './utils/audioSystem';
@@ -73,7 +72,7 @@ export function App() {
   }, []);
 
   // Trigger continuous danger sound cue whenever risk level changes
-  const prevRiskRef = useRef<RiskLevel>(floodSenseData.riskLevel);
+  const prevRiskRef = useRef<RiskLevel | null>(null);
   useEffect(() => {
     if (prevRiskRef.current !== floodSenseData.riskLevel) {
       telemetryAudio.triggerRiskAlert(floodSenseData.riskLevel);
@@ -81,24 +80,24 @@ export function App() {
     }
   }, [floodSenseData.riskLevel]);
 
-  // Perimeter border glow map according to risk level (Gradually scales from subtle on SAFE to full current intensity on CRITICAL)
-  const perimeterGlowMap: Record<RiskLevel, string> = {
-    SAFE: 'border-[2px] border-emerald-500/25 shadow-[inset_0_0_20px_rgba(16,185,129,0.1),0_0_12px_rgba(16,185,129,0.08)]',
-    WATCH: 'border-[3px] border-amber-500/45 shadow-[inset_0_0_50px_rgba(245,158,11,0.2),inset_0_0_15px_rgba(245,158,11,0.3),0_0_25px_rgba(245,158,11,0.22)]',
-    WARNING: 'border-[4.5px] border-orange-500/65 shadow-[inset_0_0_85px_rgba(249,115,22,0.3),inset_0_0_25px_rgba(249,115,22,0.45),0_0_45px_rgba(249,115,22,0.35)]',
-    CRITICAL: 'border-[6px] border-red-500/90 shadow-[inset_0_0_125px_rgba(239,68,68,0.48),inset_0_0_45px_rgba(239,68,68,0.7),0_0_70px_rgba(239,68,68,0.6)] animate-pulse',
-  };
-
   const handleSilenceAlarm = () => {
     telemetryAudio.silenceAlarm();
+  };
+
+  // Perimeter ambient glow mapping based on danger level
+  const perimeterGlowMap: Record<RiskLevel, string> = {
+    SAFE: 'shadow-[inset_0_0_60px_rgba(16,185,129,0.22)] border-emerald-500/35',
+    WATCH: 'shadow-[inset_0_0_85px_rgba(245,158,11,0.40)] border-amber-500/55',
+    WARNING: 'shadow-[inset_0_0_115px_rgba(249,115,22,0.58)] border-orange-500/75',
+    CRITICAL: 'shadow-[inset_0_0_220px_rgba(239,68,68,0.95),inset_0_0_80px_rgba(220,38,38,1)] border-red-600 animate-pulse',
   };
 
   return (
     <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 flex flex-col justify-between font-sans transition-colors duration-200 relative">
 
-      {/* Full-Website Perimeter Border Glow Overlay (Gradually Scaled) */}
+      {/* Dynamic Perimeter Glow of Entire Website Based on Threat Level */}
       <div
-        className={`fixed inset-0 pointer-events-none z-40 transition-all duration-500 ${perimeterGlowMap[floodSenseData.riskLevel]}`}
+        className={`fixed inset-0 pointer-events-none transition-all duration-700 z-50 border-[3px] ${perimeterGlowMap[floodSenseData.riskLevel]}`}
       />
 
       {/* Top Console Header */}
@@ -175,9 +174,6 @@ export function App() {
           />
 
         </div>
-
-        {/* Command Console Bottom Status Bar */}
-        <BottomStatusBar />
 
       </main>
 

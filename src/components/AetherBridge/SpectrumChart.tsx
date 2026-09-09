@@ -69,7 +69,7 @@ export const SpectrumChart: React.FC<SpectrumChartProps> = ({
       </div>
 
       {/* Spectrum Chart Container */}
-      <div className="w-full h-[280px] bg-slate-50/50 dark:bg-slate-950/60 rounded-xl p-2.5 relative border border-slate-200/80 dark:border-slate-800 shadow-inner">
+      <div className="w-full h-[220px] sm:h-[260px] lg:h-[290px] xl:h-[320px] bg-slate-50/50 dark:bg-slate-950/60 rounded-xl p-2 sm:p-2.5 relative border border-slate-200/80 dark:border-slate-800 shadow-inner">
 
         {/* PTT Active Visual Overlay */}
         {aetherData.pttActive && (

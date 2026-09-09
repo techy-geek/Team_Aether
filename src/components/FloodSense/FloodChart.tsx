@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import type { HydrographPoint } from '../../types/simulation';
+import type { HydrographPoint, RiskLevel } from '../../types/simulation';
 
 interface FloodChartProps {
   data: HydrographPoint[];
@@ -19,6 +19,7 @@ interface FloodChartProps {
   predictedPeak: number;
   timeToPeak: string;
   rainfall6h: number;
+  currentRisk?: RiskLevel;
 }
 
 export const FloodChart: React.FC<FloodChartProps> = ({
@@ -27,32 +28,93 @@ export const FloodChart: React.FC<FloodChartProps> = ({
   predictedPeak,
   timeToPeak,
   rainfall6h,
+  currentRisk = 'SAFE',
 }) => {
-  return (
-    <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col gap-3.5 font-sans transition-colors duration-200">
+  const stageLevels: { level: RiskLevel; label: string; range: string; style: string; activeStyle: string }[] = [
+    {
+      level: 'SAFE',
+      label: 'SAFE STAGE',
+      range: '< 3.20 m',
+      style: 'bg-slate-50/80 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/80 hover:border-emerald-500/50',
+      activeStyle: 'bg-emerald-600 dark:bg-emerald-600 text-white border-emerald-700 dark:border-emerald-500 shadow-xs font-semibold',
+    },
+    {
+      level: 'WATCH',
+      label: 'WATCH STAGE',
+      range: '3.20 - 4.00 m',
+      style: 'bg-slate-50/80 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/80 hover:border-amber-500/50',
+      activeStyle: 'bg-amber-600 dark:bg-amber-600 text-white border-amber-700 dark:border-amber-500 shadow-xs font-semibold',
+    },
+    {
+      level: 'WARNING',
+      label: 'WARNING STAGE',
+      range: '4.00 - 4.80 m',
+      style: 'bg-slate-50/80 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/80 hover:border-orange-500/50',
+      activeStyle: 'bg-orange-600 dark:bg-orange-600 text-white border-orange-700 dark:border-orange-500 shadow-xs font-semibold',
+    },
+    {
+      level: 'CRITICAL',
+      label: 'CRITICAL STAGE',
+      range: '> 4.80 m',
+      style: 'bg-slate-50/80 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/80 hover:border-red-500/50',
+      activeStyle: 'bg-red-600 dark:bg-red-600 text-white border-red-700 dark:border-red-500 shadow-xs font-semibold',
+    },
+  ];
 
-      {/* Primary Operational Metric Blocks with subtle gradient depth */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 dark:from-slate-800/80 dark:to-blue-950/40 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/70 text-center shadow-2xs">
-          <span className="text-[10.5px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">CURRENT STAGE</span>
-          <span className="text-2xl font-bold font-mono text-slate-900 dark:text-white">{currentStage.toFixed(2)} m</span>
+  return (
+    <div className="bg-white dark:bg-slate-900 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col gap-3 font-sans transition-colors duration-200">
+
+      {/* Stage Thresholds 4-Tab Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        {stageLevels.map((item) => {
+          const isCurrent = item.level === currentRisk;
+          return (
+            <div
+              key={item.level}
+              className={`px-3 py-2 rounded-lg border flex flex-col items-center justify-center text-center transition-colors duration-150 ${
+                isCurrent ? item.activeStyle : item.style
+              }`}
+            >
+              <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wider block">
+                  {item.label}
+                </span>
+                {isCurrent && (
+                  <span className="text-[8.5px] font-bold bg-black/20 dark:bg-black/30 text-white px-1.5 py-0.2 rounded uppercase">
+                    Active
+                  </span>
+                )}
+              </div>
+              <span className="text-sm sm:text-base font-bold font-mono">
+                {item.range}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Primary Operational Metric Blocks */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div className="bg-slate-50 dark:bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700/80 text-center shadow-2xs">
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">CURRENT STAGE</span>
+          <span className="text-base sm:text-lg font-bold font-mono text-slate-900 dark:text-white">{currentStage.toFixed(2)} m</span>
         </div>
-        <div className="bg-gradient-to-br from-sky-50/80 to-blue-50/50 dark:from-sky-950/50 dark:to-blue-950/40 p-3.5 rounded-xl border border-sky-200/80 dark:border-sky-800/60 text-center shadow-2xs">
-          <span className="text-[10.5px] text-sky-700 dark:text-sky-400 font-semibold uppercase tracking-wider block mb-0.5">PREDICTED PEAK</span>
-          <span className="text-2xl font-bold font-mono text-sky-900 dark:text-sky-300">{predictedPeak.toFixed(2)} m</span>
+        <div className="bg-slate-50 dark:bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700/80 text-center shadow-2xs">
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">PREDICTED PEAK</span>
+          <span className="text-base sm:text-lg font-bold font-mono text-slate-900 dark:text-white">{predictedPeak.toFixed(2)} m</span>
         </div>
-        <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 dark:from-slate-800/80 dark:to-blue-950/40 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/70 text-center shadow-2xs">
-          <span className="text-[10.5px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">TIME TO PEAK</span>
-          <span className="text-2xl font-bold font-mono text-slate-900 dark:text-white">{timeToPeak}</span>
+        <div className="bg-slate-50 dark:bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700/80 text-center shadow-2xs">
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">TIME TO PEAK</span>
+          <span className="text-base sm:text-lg font-bold font-mono text-slate-900 dark:text-white">{timeToPeak}</span>
         </div>
-        <div className="bg-gradient-to-br from-cyan-50/70 to-slate-50 dark:from-cyan-950/50 dark:to-slate-800/60 p-3.5 rounded-xl border border-cyan-200/80 dark:border-cyan-800/60 text-center shadow-2xs">
-          <span className="text-[10.5px] text-cyan-800 dark:text-cyan-400 font-semibold uppercase tracking-wider block mb-0.5">RAINFALL (6H ACCUM.)</span>
-          <span className="text-2xl font-bold font-mono text-cyan-950 dark:text-cyan-200">{rainfall6h} mm</span>
+        <div className="bg-slate-50 dark:bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700/80 text-center shadow-2xs">
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider block mb-0.5">RAINFALL (6H ACCUM.)</span>
+          <span className="text-base sm:text-lg font-bold font-mono text-slate-900 dark:text-white">{rainfall6h} mm</span>
         </div>
       </div>
 
       {/* Chart Visualization */}
-      <div className="w-full h-[320px] relative bg-slate-50/50 dark:bg-slate-950/60 rounded-xl border border-slate-200/80 dark:border-slate-800 p-2.5 shadow-inner">
+      <div className="w-full h-[260px] sm:h-[300px] lg:h-[340px] xl:h-[380px] relative bg-slate-50/50 dark:bg-slate-950/60 rounded-xl border border-slate-200/80 dark:border-slate-800 p-2 sm:p-2.5 shadow-inner">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 15, right: 20, left: 0, bottom: 5 }}>
             <defs>

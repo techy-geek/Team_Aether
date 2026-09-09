@@ -1,7 +1,6 @@
 import React from 'react';
 import type { FloodSenseData, HydrographPoint } from '../../types/simulation';
 import { FloodChart } from './FloodChart';
-import { ModelCards } from './ModelCards';
 
 interface FloodSensePanelProps {
   floodData: FloodSenseData;
@@ -22,14 +21,7 @@ export const FloodSensePanel: React.FC<FloodSensePanelProps> = ({
         predictedPeak={floodData.predictedPeak}
         timeToPeak={floodData.timeToPeak}
         rainfall6h={floodData.rainfall6h}
-      />
-
-      {/* AI Model Architecture & Confidence Consensus */}
-      <ModelCards
-        lstmModel={floodData.lstmModel}
-        randomForestModel={floodData.randomForestModel}
-        ensembleConfidence={floodData.ensembleConfidence}
-        ensembleRisk={floodData.riskLevel}
+        currentRisk={floodData.riskLevel}
       />
 
     </div>
