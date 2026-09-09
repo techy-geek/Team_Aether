@@ -138,7 +138,7 @@ export const FloodControls: React.FC<FloodControlsProps> = ({
                   key={s}
                   onClick={() => onSpeedChange(s)}
                   className={`px-2 py-0.5 rounded-md text-xs font-mono font-medium transition-all ${simulationSpeed === s
-                      ? 'bg-slate-900 dark:bg-sky-600 text-white font-bold shadow-2xs'
+                      ? 'bg-sky-600 text-white font-bold shadow-2xs'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                 >

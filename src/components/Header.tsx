@@ -48,8 +48,8 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Left Console Title */}
         <div className="flex items-center space-x-3 w-full md:w-auto">
-          <div className="flex items-center space-x-2 bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-950 text-white px-3 py-1 rounded-xl shadow-xs border border-transparent dark:border-slate-700/60">
-            <Shield className="w-4 h-4 text-cyan-400 shrink-0" />
+          <div className="flex items-center space-x-2 bg-sky-50 dark:bg-slate-800 text-sky-900 dark:text-sky-300 px-3 py-1 rounded-xl shadow-2xs border border-sky-200/80 dark:border-slate-700/60">
+            <Shield className="w-4 h-4 text-sky-600 dark:text-cyan-400 shrink-0" />
             <span className="tracking-tight uppercase font-mono text-xs font-bold">SENTINELBRIDGE</span>
           </div>
           <span className="text-slate-300 dark:text-slate-700 font-normal">|</span>
@@ -135,11 +135,11 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Telemetry Pause/Resume Button */}
           <button
             onClick={onToggleSimulation}
-            className="flex items-center space-x-1.5 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-medium px-3 py-1 rounded-full transition-all cursor-pointer text-[11px] shadow-xs border border-slate-800 dark:border-slate-700"
+            className="flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold px-3 py-1 rounded-full transition-all cursor-pointer text-[11px] shadow-2xs border border-slate-200 dark:border-slate-700"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span className={`w-1.5 h-1.5 rounded-full ${simulationRunning ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></span>
             <span>{simulationRunning ? 'TELEMETRY ACTIVE' : 'TELEMETRY PAUSED'}</span>
-            <ChevronDown className="w-3 h-3 text-slate-300" />
+            <ChevronDown className="w-3 h-3 text-slate-500 dark:text-slate-400" />
           </button>
         </div>
 

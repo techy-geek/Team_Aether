@@ -328,7 +328,7 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
                 <button
                   key={g}
                   onClick={() => setGain(g)}
-                  className={`px-1.5 py-0.2 rounded font-mono ${gain === g ? 'bg-slate-900 dark:bg-teal-600 text-white font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  className={`px-1.5 py-0.2 rounded font-mono ${gain === g ? 'bg-teal-600 text-white font-bold shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                 >
                   {g}x
@@ -344,7 +344,7 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
                 <button
                   key={tb}
                   onClick={() => setTimebase(tb)}
-                  className={`px-1.5 py-0.2 rounded font-mono ${timebase === tb ? 'bg-slate-900 dark:bg-teal-600 text-white font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  className={`px-1.5 py-0.2 rounded font-mono ${timebase === tb ? 'bg-teal-600 text-white font-bold shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                 >
                   {tb}x

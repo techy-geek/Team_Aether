@@ -81,12 +81,12 @@ export function App() {
     }
   }, [floodSenseData.riskLevel]);
 
-  // Perimeter border glow map according to risk level (Thick & Vibrant)
+  // Perimeter border glow map according to risk level (Gradually scales from subtle on SAFE to full current intensity on CRITICAL)
   const perimeterGlowMap: Record<RiskLevel, string> = {
-    SAFE: 'border-emerald-500/70 shadow-[inset_0_0_90px_rgba(16,185,129,0.32),inset_0_0_30px_rgba(16,185,129,0.5),0_0_45px_rgba(16,185,129,0.4)]',
-    WATCH: 'border-amber-500/75 shadow-[inset_0_0_95px_rgba(245,158,11,0.35),inset_0_0_35px_rgba(245,158,11,0.55),0_0_50px_rgba(245,158,11,0.45)]',
-    WARNING: 'border-orange-500/80 shadow-[inset_0_0_105px_rgba(249,115,22,0.4),inset_0_0_40px_rgba(249,115,22,0.6),0_0_55px_rgba(249,115,22,0.5)]',
-    CRITICAL: 'border-red-500/90 shadow-[inset_0_0_125px_rgba(239,68,68,0.48),inset_0_0_45px_rgba(239,68,68,0.7),0_0_70px_rgba(239,68,68,0.6)] animate-pulse',
+    SAFE: 'border-[2px] border-emerald-500/25 shadow-[inset_0_0_20px_rgba(16,185,129,0.1),0_0_12px_rgba(16,185,129,0.08)]',
+    WATCH: 'border-[3px] border-amber-500/45 shadow-[inset_0_0_50px_rgba(245,158,11,0.2),inset_0_0_15px_rgba(245,158,11,0.3),0_0_25px_rgba(245,158,11,0.22)]',
+    WARNING: 'border-[4.5px] border-orange-500/65 shadow-[inset_0_0_85px_rgba(249,115,22,0.3),inset_0_0_25px_rgba(249,115,22,0.45),0_0_45px_rgba(249,115,22,0.35)]',
+    CRITICAL: 'border-[6px] border-red-500/90 shadow-[inset_0_0_125px_rgba(239,68,68,0.48),inset_0_0_45px_rgba(239,68,68,0.7),0_0_70px_rgba(239,68,68,0.6)] animate-pulse',
   };
 
   const handleSilenceAlarm = () => {
@@ -96,9 +96,9 @@ export function App() {
   return (
     <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 flex flex-col justify-between font-sans transition-colors duration-200 relative">
 
-      {/* Full-Website Thick Perimeter Border Glow Overlay */}
+      {/* Full-Website Perimeter Border Glow Overlay (Gradually Scaled) */}
       <div
-        className={`fixed inset-0 pointer-events-none z-40 transition-all duration-500 border-[6px] ${perimeterGlowMap[floodSenseData.riskLevel]}`}
+        className={`fixed inset-0 pointer-events-none z-40 transition-all duration-500 ${perimeterGlowMap[floodSenseData.riskLevel]}`}
       />
 
       {/* Top Console Header */}

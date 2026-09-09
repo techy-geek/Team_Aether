@@ -12,8 +12,8 @@ import type {
 
 const INITIAL_EVENTS: SystemEvent[] = [
   { id: '1', timestamp: '14:32:08', module: 'FLOODSENSE', message: 'Station SIL-CATCH-04 telemetry online. Gauge zero calibrated.', severity: 'info' },
-  { id: '2', timestamp: '14:32:14', module: 'FLOODSENSE', message: 'Tipping bucket rain gauge reported 86 mm / 6h accumulation.', severity: 'info' },
-  { id: '3', timestamp: '14:32:19', module: 'FLOODSENSE', message: 'Stage forecast crossed 3.20 m mark. Escalating state: SAFE → WATCH.', severity: 'warning' },
+  { id: '2', timestamp: '14:32:14', module: 'FLOODSENSE', message: 'Tipping bucket rain gauge nominal. 0 mm / 6h accumulation.', severity: 'info' },
+  { id: '3', timestamp: '14:32:19', module: 'FLOODSENSE', message: 'Stage forecast 0.50 m. State nominal: SAFE.', severity: 'success' },
   { id: '4', timestamp: '14:32:25', module: 'AETHERBRIDGE', message: 'HackRF SDR rx tuned to 155.700 MHz. Squelch threshold -72 dBFS.', severity: 'success' },
   { id: '5', timestamp: '14:32:31', module: 'AETHERBRIDGE', message: '5G NR SA PDU session established. QoS 5QI 1 (VoNR priority).', severity: 'success' },
 ];
@@ -24,11 +24,11 @@ export function useSimulationState() {
   const [currentDate, setCurrentDate] = useState<string>('');
   const [events, setEvents] = useState<SystemEvent[]>(INITIAL_EVENTS);
 
-  // Simulation state
+  // Simulation state (Default Hydrological Forcing Controls set to minimum)
   const [simulationRunning, setSimulationRunning] = useState<boolean>(true);
   const [simulationSpeed, setSimulationSpeed] = useState<number>(1);
-  const [rainfallOverride, setRainfallOverride] = useState<number>(86);
-  const [riverStageOverride, setRiverStageOverride] = useState<number>(2.84);
+  const [rainfallOverride, setRainfallOverride] = useState<number>(0);
+  const [riverStageOverride, setRiverStageOverride] = useState<number>(0.5);
 
   // Continuous time phase for 60 FPS / 100ms ultra-smooth graph rendering
   const [timePhase, setTimePhase] = useState<number>(Date.now() / 1000);
@@ -296,14 +296,14 @@ export function useSimulationState() {
   };
 
   const resetSimulation = () => {
-    setRainfallOverride(86);
-    setRiverStageOverride(2.84);
+    setRainfallOverride(0);
+    setRiverStageOverride(0.5);
     setSimulationRunning(true);
     setSimulationSpeed(1);
     setNoiseInjected(false);
     setPttActive(false);
     setActiveBearer('5G NR SA');
-    addEvent('SYSTEM', 'Console metrics reset to default telemetry baseline.', 'info');
+    addEvent('SYSTEM', 'Console metrics reset to default telemetry baseline (min values).', 'info');
   };
 
   return {
