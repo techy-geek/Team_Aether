@@ -39,12 +39,13 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
       const isDark = document.documentElement.classList.contains('dark');
 
       // Clear background (SCADA crisp canvas)
-      ctx.fillStyle = isDark ? '#0b0f19' : '#f8fafc';
+      ctx.fillStyle = isDark ? '#040711' : '#f8fafc';
       ctx.fillRect(0, 0, width, height);
 
       // Draw Oscilloscope Graticule (Grid Lines)
-      ctx.strokeStyle = isDark ? '#1e293b' : '#e2e8f0';
+      ctx.strokeStyle = isDark ? '#0f172a' : '#e2e8f0';
       ctx.lineWidth = 1;
+      ctx.shadowBlur = 0;
 
       // Vertical divisions
       const vDivs = 10;
@@ -67,7 +68,7 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
       }
 
       // Center crosshair axis
-      ctx.strokeStyle = isDark ? '#334155' : '#cbd5e1';
+      ctx.strokeStyle = isDark ? '#1e293b' : '#cbd5e1';
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
       ctx.moveTo(0, centerY);
@@ -85,14 +86,23 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
 
       if (scopeMode === 'time') {
         // TIME DOMAIN OSCILLOSCOPE
-        ctx.lineWidth = 2.2;
-        ctx.strokeStyle = data.pttActive
+        ctx.lineWidth = 2.4;
+        const traceColor = data.pttActive
           ? data.noiseInjected
             ? '#f97316' // Amber-orange if noisy voice
             : '#38bdf8' // Bright Cyan-Blue if clean voice
           : data.squelchOpen
             ? '#64748b' // Squelch noise
-            : '#475569'; // Idle quiet line
+            : isDark ? '#334155' : '#475569'; // Idle quiet line
+
+        ctx.strokeStyle = traceColor;
+
+        if (isDark && (data.pttActive || data.squelchOpen)) {
+          ctx.shadowBlur = data.pttActive ? 10 : 4;
+          ctx.shadowColor = traceColor;
+        } else {
+          ctx.shadowBlur = 0;
+        }
 
         for (let i = 0; i < points; i++) {
           const x = (i / (points - 1)) * width;
@@ -131,6 +141,7 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
           }
         }
         ctx.stroke();
+        ctx.shadowBlur = 0;
 
       } else if (scopeMode === 'fft') {
         // AUDIO SPECTRUM BARS (300 Hz to 3400 Hz Voice Band)
@@ -157,15 +168,19 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
 
           ctx.fillStyle = data.pttActive
             ? data.noiseInjected ? '#f97316' : '#38bdf8'
-            : isDark ? '#475569' : '#94a3b8';
+            : isDark ? '#1e293b' : '#94a3b8';
           ctx.fillRect(bx, by, barWidth, barH);
         }
 
       } else {
         // ENVELOPE / VOWEL MODULATION (RMS ENERGY)
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.2;
         ctx.strokeStyle = '#14b8a6';
-        ctx.fillStyle = 'rgba(20, 184, 166, 0.15)';
+        ctx.fillStyle = isDark ? 'rgba(20, 184, 166, 0.2)' : 'rgba(20, 184, 166, 0.15)';
+        if (isDark && data.pttActive) {
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = '#14b8a6';
+        }
 
         ctx.beginPath();
         for (let i = 0; i < points; i++) {
@@ -193,6 +208,7 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
+        ctx.shadowBlur = 0;
       }
 
       animationFrameId = requestAnimationFrame(render);
@@ -213,13 +229,13 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
   const vuPercent = Math.min(100, Math.max(0, ((vuLevel + 60) / 60) * 100));
 
   return (
-    <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col gap-3.5 font-sans transition-colors duration-200">
+    <div className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800/80 shadow-xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] flex flex-col gap-3.5 font-sans transition-colors duration-200">
 
       {/* Scope Header & Badges */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div>
           <div className="flex items-center space-x-2.5">
-            <div className="p-1.5 rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800/60">
+            <div className="p-1.5 rounded-lg bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-500/30">
               <Activity className="w-4 h-4" />
             </div>
             <h3 className="font-bold text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider">
@@ -234,24 +250,24 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
         {/* State Badges & Mode Switcher */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Mode Switcher */}
-          <div className="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-0.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 text-[11px]">
+          <div className="flex items-center bg-slate-100/80 dark:bg-slate-950/80 p-0.5 rounded-xl border border-slate-200/80 dark:border-slate-800 text-[11px]">
             <button
               onClick={() => setScopeMode('time')}
-              className={`px-3 py-1 rounded-lg font-semibold transition-all ${scopeMode === 'time' ? 'bg-gradient-to-r from-teal-600 to-cyan-700 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              className={`px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer ${scopeMode === 'time' ? 'bg-gradient-to-r from-teal-600 to-cyan-700 text-white font-bold shadow-xs dark:shadow-[0_0_12px_rgba(20,184,166,0.4)]' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
             >
               Waveform
             </button>
             <button
               onClick={() => setScopeMode('fft')}
-              className={`px-3 py-1 rounded-lg font-semibold transition-all ${scopeMode === 'fft' ? 'bg-gradient-to-r from-teal-600 to-cyan-700 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              className={`px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer ${scopeMode === 'fft' ? 'bg-gradient-to-r from-teal-600 to-cyan-700 text-white font-bold shadow-xs dark:shadow-[0_0_12px_rgba(20,184,166,0.4)]' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
             >
               FFT (0-4 kHz)
             </button>
             <button
               onClick={() => setScopeMode('envelope')}
-              className={`px-3 py-1 rounded-lg font-semibold transition-all ${scopeMode === 'envelope' ? 'bg-gradient-to-r from-teal-600 to-cyan-700 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              className={`px-3 py-1 rounded-lg font-semibold transition-all cursor-pointer ${scopeMode === 'envelope' ? 'bg-gradient-to-r from-teal-600 to-cyan-700 text-white font-bold shadow-xs dark:shadow-[0_0_12px_rgba(20,184,166,0.4)]' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
             >
               Envelope
@@ -260,8 +276,8 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
 
           {/* PTT Voice State Indicator */}
           <div className={`px-3 py-1 rounded-full border text-[11px] font-semibold flex items-center space-x-1.5 ${data.pttActive
-              ? 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border-red-300 dark:border-red-800/60 animate-pulse'
-              : 'bg-slate-100/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+              ? 'bg-red-50 dark:bg-red-950/80 text-red-700 dark:text-red-300 border-red-300 dark:border-red-500/60 animate-pulse dark:shadow-[0_0_15px_rgba(239,68,68,0.4)]'
+              : 'bg-slate-100/80 dark:bg-slate-950/70 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800'
             }`}>
             <Mic className="w-3.5 h-3.5" />
             <span>{data.pttActive ? 'MIC LIVE (TX)' : 'STANDBY (RX)'}</span>
@@ -270,10 +286,10 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
       </div>
 
       {/* Main Oscilloscope Canvas & Diagnostic Overlay */}
-      <div className="relative w-full h-[190px] rounded-xl border border-slate-200/80 dark:border-slate-800 overflow-hidden bg-slate-50 dark:bg-slate-950 shadow-inner">
+      <div className="relative w-full h-[190px] rounded-xl border border-slate-200/80 dark:border-slate-800/90 overflow-hidden bg-slate-50 dark:bg-[#040711] shadow-inner">
 
         {/* Floating Graticule Readout Overlay */}
-        <div className="absolute top-2.5 left-2.5 z-10 bg-white/95 dark:bg-slate-800/90 backdrop-blur-xs px-2.5 py-1 rounded-full border border-slate-200/90 dark:border-slate-700 text-[10px] font-mono text-slate-600 dark:text-slate-300 shadow-2xs flex items-center space-x-2">
+        <div className="absolute top-2.5 left-2.5 z-10 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xs px-2.5 py-1 rounded-full border border-slate-200/90 dark:border-slate-700 text-[10px] font-mono text-slate-600 dark:text-slate-300 shadow-2xs flex items-center space-x-2">
           <span>TIMEBASE: 5 ms/DIV</span>
           <span className="text-slate-300 dark:text-slate-600">|</span>
           <span>SCALE: 100 mV/DIV</span>
@@ -284,7 +300,7 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
         </div>
 
         {/* Floating Codec Status Banner */}
-        <div className="absolute top-2.5 right-2.5 z-10 bg-white/95 dark:bg-slate-800/90 backdrop-blur-xs px-2.5 py-1 rounded-full border border-slate-200/90 dark:border-slate-700 text-[10px] font-mono text-slate-700 dark:text-slate-200 shadow-2xs flex items-center space-x-1.5">
+        <div className="absolute top-2.5 right-2.5 z-10 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xs px-2.5 py-1 rounded-full border border-slate-200/90 dark:border-slate-700 text-[10px] font-mono text-slate-700 dark:text-slate-200 shadow-2xs flex items-center space-x-1.5">
           <Zap className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
           <span>CODEC: OPUS VBR</span>
           <span className="text-slate-300 dark:text-slate-600">|</span>
@@ -308,21 +324,21 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
       </div>
 
       {/* Audio Scope Bottom Controls & VU Meter */}
-      <div className="bg-slate-50/90 dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700/70 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+      <div className="bg-slate-50/90 dark:bg-slate-950/70 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
 
         {/* Mic Peak VU Meter */}
         <div className="flex items-center space-x-2.5 w-full md:w-auto">
           <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider shrink-0">
             Audio VU:
           </span>
-          <div className="flex-1 md:w-44 h-3 bg-slate-200/80 dark:bg-slate-700 rounded-full overflow-hidden p-0.5 flex gap-0.5">
+          <div className="flex-1 md:w-44 h-3 bg-slate-200/80 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 flex gap-0.5">
             <div
-              className={`h-full rounded-full transition-all duration-75 ${vuPercent > 80 ? 'bg-red-500' : vuPercent > 50 ? 'bg-amber-500' : 'bg-gradient-to-r from-teal-500 to-emerald-500'
+              className={`h-full rounded-full transition-all duration-75 ${vuPercent > 80 ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)]' : vuPercent > 50 ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.7)]' : 'bg-gradient-to-r from-teal-500 to-emerald-500 shadow-[0_0_8px_rgba(20,184,166,0.7)]'
                 }`}
               style={{ width: `${vuPercent}%` }}
             />
           </div>
-          <span className="font-mono text-[10.5px] text-slate-700 dark:text-slate-300 font-semibold shrink-0 w-14 text-right">
+          <span className="font-mono text-[10.5px] text-slate-700 dark:text-cyan-300 font-semibold shrink-0 w-14 text-right">
             {vuLevel} dBFS
           </span>
         </div>
@@ -332,12 +348,12 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
 
           <div className="flex items-center space-x-1.5">
             <span className="text-slate-500 dark:text-slate-400 text-[11px]">Gain:</span>
-            <div className="flex bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 text-[10px]">
+            <div className="flex bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-0.5 text-[10px]">
               {[1.0, 1.5, 2.5].map((g) => (
                 <button
                   key={g}
                   onClick={() => setGain(g)}
-                  className={`px-1.5 py-0.2 rounded font-mono ${gain === g ? 'bg-teal-600 text-white font-bold shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  className={`px-1.5 py-0.2 rounded font-mono cursor-pointer ${gain === g ? 'bg-teal-600 text-white font-bold shadow-2xs dark:shadow-[0_0_8px_rgba(20,184,166,0.4)]' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                 >
                   {g}x
@@ -348,12 +364,12 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
 
           <div className="flex items-center space-x-1.5">
             <span className="text-slate-500 dark:text-slate-400 text-[11px]">Timebase:</span>
-            <div className="flex bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 text-[10px]">
+            <div className="flex bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-0.5 text-[10px]">
               {[1, 2, 4].map((tb) => (
                 <button
                   key={tb}
                   onClick={() => setTimebase(tb)}
-                  className={`px-1.5 py-0.2 rounded font-mono ${timebase === tb ? 'bg-teal-600 text-white font-bold shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  className={`px-1.5 py-0.2 rounded font-mono cursor-pointer ${timebase === tb ? 'bg-teal-600 text-white font-bold shadow-2xs dark:shadow-[0_0_8px_rgba(20,184,166,0.4)]' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                 >
                   {tb}x
@@ -366,9 +382,9 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
             <span className="text-slate-500 dark:text-slate-400 text-[11px]">AGC:</span>
             <button
               onClick={() => setAgcEnabled(!agcEnabled)}
-              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${agcEnabled
-                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600'
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${agcEnabled
+                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40 dark:shadow-[0_0_8px_rgba(16,185,129,0.2)]'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
                 }`}
             >
               {agcEnabled ? 'AUTO AGC ON' : 'MANUAL'}
@@ -377,7 +393,7 @@ export const AudioOscilloscope: React.FC<AudioOscilloscopeProps> = ({ data }) =>
 
           <div className="flex items-center space-x-1">
             <span className="text-slate-500 dark:text-slate-400 text-[11px]">DSP Squelch:</span>
-            <span className="font-mono text-slate-800 dark:text-slate-200 font-bold text-[11px]">
+            <span className="font-mono text-slate-800 dark:text-cyan-300 font-bold text-[11px]">
               {data.squelchOpen ? 'UNMUTED' : 'MUTED'}
             </span>
           </div>

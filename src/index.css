@@ -1,27 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
+  html, body, #root {
+    min-height: 100vh;
+  }
+
   body {
-    background-color: #f8fafc;
+    background-color: #f1f5f9;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: #0f172a;
     -webkit-font-smoothing: antialiased;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 
-  html.dark body {
-    background-color: #0b0f19;
+  html.dark, html.dark body, html.dark #root {
+    background-color: #0a0f1d;
+    background-image: 
+      radial-gradient(at 10% 10%, rgba(14, 165, 233, 0.08) 0px, transparent 45%),
+      radial-gradient(at 90% 15%, rgba(20, 184, 166, 0.07) 0px, transparent 45%),
+      radial-gradient(at 50% 90%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+      radial-gradient(at 50% 40%, rgba(15, 23, 42, 0.6) 0px, transparent 70%);
+    background-attachment: fixed;
     color: #f1f5f9;
   }
 }
 
 /* Custom Telemetry & Mission Control Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -29,16 +39,18 @@
 }
 
 html.dark ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #090e1a;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 html.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -46,10 +58,20 @@ html.dark ::-webkit-scrollbar-thumb {
 }
 
 html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #0284c7;
+  box-shadow: 0 0 8px rgba(14, 165, 233, 0.6);
 }
 
-/* Custom Utility Animations */
+/* Custom Range Input Styling for Mission Control */
+input[type='range'] {
+  accent-color: #0284c7;
+}
+
+html.dark input[type='range']::-webkit-slider-thumb {
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.8));
+}
+
+/* Custom Utility Animations & Tactical Glows */
 @keyframes pulse-ring {
   0% {
     transform: scale(0.95);
@@ -72,10 +94,24 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 }
 
 .bg-grid-pattern {
-  background-size: 20px 20px;
+  background-size: 24px 24px;
   background-image:
     linear-gradient(to right, rgba(226, 232, 240, 0.6) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(226, 232, 240, 0.6) 1px, transparent 1px);
+}
+
+html.dark .bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(51, 65, 85, 0.25) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(51, 65, 85, 0.25) 1px, transparent 1px);
+}
+
+/* Tactical Glassmorphism & Neon Glow utility helpers */
+.dark-glass-panel {
+  background: rgba(10, 15, 29, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(51, 65, 85, 0.65);
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* Leaflet Custom Marker Resets */
