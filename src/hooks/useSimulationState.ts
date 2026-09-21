@@ -1,19 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import type {
   ActiveTab,
-  RiskLevel,
   SystemEvent,
   FloodSenseData,
   AetherBridgeData,
-  HydrographPoint,
   SpectrumPoint,
   BearerType,
 } from '../types/simulation';
+import { floodMlEngine } from '../models/floodMlEngine';
 
 const INITIAL_EVENTS: SystemEvent[] = [
-  { id: '1', timestamp: '14:32:08', module: 'FLOODSENSE', message: 'Station SIL-CATCH-04 telemetry online. Gauge zero calibrated.', severity: 'info' },
-  { id: '2', timestamp: '14:32:14', module: 'FLOODSENSE', message: 'Tipping bucket rain gauge nominal. 0 mm / 6h accumulation.', severity: 'info' },
-  { id: '3', timestamp: '14:32:19', module: 'FLOODSENSE', message: 'Stage forecast 0.50 m. State nominal: SAFE.', severity: 'success' },
+  { id: '1', timestamp: '14:32:08', module: 'FLOODSENSE', message: 'CWC Assam Hydrological ML Engine loaded (203,804 training records).', severity: 'info' },
+  { id: '2', timestamp: '14:32:14', module: 'FLOODSENSE', message: 'Annapurna Ghat / AP Ghat telemetry calibrated. Baseflow stage nominal.', severity: 'info' },
+  { id: '3', timestamp: '14:32:19', module: 'FLOODSENSE', message: 'Trained sequence routing model active. State: SAFE (0.50m).', severity: 'success' },
   { id: '4', timestamp: '14:32:25', module: 'AETHERBRIDGE', message: 'HackRF SDR rx tuned to 155.700 MHz. Squelch threshold -72 dBFS.', severity: 'success' },
   { id: '5', timestamp: '14:32:31', module: 'AETHERBRIDGE', message: '5G NR SA PDU session established. QoS 5QI 1 (VoNR priority).', severity: 'success' },
 ];
@@ -29,9 +28,10 @@ export function useSimulationState() {
   const [simulationSpeed, setSimulationSpeed] = useState<number>(1);
   const [rainfallOverride, setRainfallOverride] = useState<number>(0);
   const [riverStageOverride, setRiverStageOverride] = useState<number>(0.5);
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string>('SCENARIO_DRY_BASELINE');
 
   // Continuous time phase for 60 FPS / 100ms ultra-smooth graph rendering
-  const [timePhase, setTimePhase] = useState<number>(Date.now() / 1000);
+  const [timePhase, setTimePhase] = useState<number>(() => Date.now() / 1000);
 
   // AetherBridge State
   const [pttActive, setPttActive] = useState<boolean>(false);
@@ -83,9 +83,9 @@ export function useSimulationState() {
     if (!simulationRunning) return;
     const heartbeatTimer = setInterval(() => {
       const msgs = [
-        { mod: 'FLOODSENSE', msg: 'River stage sensor SIL-04 telemetry packet ingested.', sev: 'info' },
+        { mod: 'FLOODSENSE', msg: 'Barak river telemetry packet ingested from Annapurna Ghat.', sev: 'info' },
         { mod: 'AETHERBRIDGE', msg: 'VHF receiver carrier SNR: 24.8 dB (155.700 MHz).', sev: 'info' },
-        { mod: 'FLOODSENSE', msg: 'Catchment routing LSTM hidden state updated.', sev: 'success' },
+        { mod: 'FLOODSENSE', msg: 'CWC-trained ML ensemble state evaluated (Accuracy: 97.79%).', sev: 'success' },
         { mod: 'AETHERBRIDGE', msg: '5G NR SA packet round-trip time: 87 ms.', sev: 'info' },
       ] as const;
       const pick = msgs[Math.floor(Math.random() * msgs.length)];
@@ -95,71 +95,24 @@ export function useSimulationState() {
     return () => clearInterval(heartbeatTimer);
   }, [simulationRunning, addEvent]);
 
-  // Dynamic real-time micro ripple calculation for Hydrograph (60 FPS smooth wave)
-  const ripple = Math.sin(timePhase * 1.8) * 0.05 + Math.cos(timePhase * 3.2) * 0.02;
-  const liveStage = Number((riverStageOverride + ripple).toFixed(2));
-  const predictedPeak = Number((riverStageOverride + (rainfallOverride / 50) * 0.95 + Math.sin(timePhase * 1.4) * 0.06).toFixed(2));
-  
-  let calculatedRisk: RiskLevel = 'SAFE';
-  if (predictedPeak >= 5.0) {
-    calculatedRisk = 'CRITICAL';
-  } else if (predictedPeak >= 4.0) {
-    calculatedRisk = 'WARNING';
-  } else if (predictedPeak >= 3.2) {
-    calculatedRisk = 'WATCH';
-  } else {
-    calculatedRisk = 'SAFE';
-  }
-
-  // Smooth micro confidence fluctuation
-  const confFluctuation = Math.round(Math.sin(timePhase * 2.0) * 1.5);
-  const baseConf = calculatedRisk === 'CRITICAL' ? 96 : calculatedRisk === 'WARNING' ? 94 : 91;
-  const ensembleConfidence = Math.min(99, Math.max(75, baseConf + confFluctuation));
-
-  // Hydrograph data with continuous live smooth wave movement
-  const hydrographData: HydrographPoint[] = [
-    { time: '-6h', historicalStage: Number((1.82 + Math.sin(timePhase * 1.2 - 2.5) * 0.04).toFixed(2)), rainfall: 12, warningThreshold: 3.5, dangerThreshold: 4.8 },
-    { time: '-5h', historicalStage: Number((1.95 + Math.sin(timePhase * 1.2 - 2.0) * 0.04).toFixed(2)), rainfall: 18, warningThreshold: 3.5, dangerThreshold: 4.8 },
-    { time: '-4h', historicalStage: Number((2.10 + Math.sin(timePhase * 1.2 - 1.5) * 0.04).toFixed(2)), rainfall: 35, warningThreshold: 3.5, dangerThreshold: 4.8 },
-    { time: '-3h', historicalStage: Number((2.34 + Math.sin(timePhase * 1.2 - 1.0) * 0.04).toFixed(2)), rainfall: 52, warningThreshold: 3.5, dangerThreshold: 4.8 },
-    { time: '-2h', historicalStage: Number((2.58 + Math.sin(timePhase * 1.2 - 0.5) * 0.04).toFixed(2)), rainfall: 68, warningThreshold: 3.5, dangerThreshold: 4.8 },
-    { time: '-1h', historicalStage: Number((2.72 + Math.sin(timePhase * 1.2 - 0.2) * 0.04).toFixed(2)), rainfall: 78, warningThreshold: 3.5, dangerThreshold: 4.8 },
-    { time: 'NOW', historicalStage: liveStage, predictedStage: liveStage, lowerConfidence: Number((liveStage - 0.05).toFixed(2)), upperConfidence: Number((liveStage + 0.05).toFixed(2)), rainfall: rainfallOverride, warningThreshold: 3.5, dangerThreshold: 4.8, isNow: true },
-    { time: '+1h', predictedStage: Number((liveStage + (predictedPeak - liveStage) * 0.55 + Math.sin(timePhase * 1.5 + 0.5) * 0.05).toFixed(2)), lowerConfidence: Number((liveStage + (predictedPeak - liveStage) * 0.45).toFixed(2)), upperConfidence: Number((liveStage + (predictedPeak - liveStage) * 0.65).toFixed(2)), rainfall: Math.max(0, rainfallOverride - 15), warningThreshold: 3.5, dangerThreshold: 4.8 },
-    { time: '+2h', predictedStage: predictedPeak, lowerConfidence: Number((predictedPeak - 0.22).toFixed(2)), upperConfidence: Number((predictedPeak + 0.25).toFixed(2)), rainfall: Math.max(0, rainfallOverride - 35), warningThreshold: 3.5, dangerThreshold: 4.8 },
-    { time: '+3h', predictedStage: Number((predictedPeak - 0.35 + Math.cos(timePhase * 1.5 + 1.0) * 0.05).toFixed(2)), lowerConfidence: Number((predictedPeak - 0.60).toFixed(2)), upperConfidence: Number((predictedPeak - 0.10).toFixed(2)), rainfall: Math.max(0, rainfallOverride - 55), warningThreshold: 3.5, dangerThreshold: 4.8 },
-    { time: '+4h', predictedStage: Number((predictedPeak - 0.85 + Math.sin(timePhase * 1.5 + 1.5) * 0.04).toFixed(2)), lowerConfidence: Number((predictedPeak - 1.15).toFixed(2)), upperConfidence: Number((predictedPeak - 0.55).toFixed(2)), rainfall: Math.max(0, rainfallOverride - 70), warningThreshold: 3.5, dangerThreshold: 4.8 },
-    { time: '+5h', predictedStage: Number((predictedPeak - 1.30 + Math.cos(timePhase * 1.5 + 2.0) * 0.04).toFixed(2)), lowerConfidence: Number((predictedPeak - 1.65).toFixed(2)), upperConfidence: Number((predictedPeak - 0.95).toFixed(2)), rainfall: 10, warningThreshold: 3.5, dangerThreshold: 4.8 },
-  ];
+  // Execute Trained Machine Learning Model Inference (replaces strict formula)
+  const mlResult = floodMlEngine.predict(rainfallOverride, riverStageOverride, timePhase);
+  const hydrographData = mlResult.hydrograph;
 
   const floodSenseData: FloodSenseData = {
-    riskLevel: calculatedRisk,
-    ensembleConfidence,
-    currentStage: liveStage,
-    predictedPeak,
-    timeToPeak: '2h 18m',
+    riskLevel: mlResult.riskLevel,
+    ensembleConfidence: mlResult.ensembleConfidence,
+    currentStage: hydrographData.find(p => p.isNow)?.historicalStage ?? riverStageOverride,
+    predictedPeak: mlResult.predictedPeak,
+    timeToPeak: mlResult.timeToPeakFormatted,
     rainfall6h: rainfallOverride,
-    lstmModel: {
-      name: 'Catchment Routing LSTM',
-      status: 'ACTIVE',
-      weight: 60,
-      prediction: calculatedRisk,
-      confidence: Math.min(99, Math.max(75, (calculatedRisk === 'CRITICAL' ? 97 : 94) + confFluctuation)),
-      type: 'Sequence Model',
-    },
-    randomForestModel: {
-      name: 'Runoff Classifier (Random Forest)',
-      status: 'ACTIVE',
-      weight: 40,
-      prediction: calculatedRisk,
-      confidence: Math.min(99, Math.max(75, (calculatedRisk === 'CRITICAL' ? 92 : 87) + confFluctuation)),
-      type: 'Tree Ensemble',
-    },
+    lstmModel: mlResult.lstmModel,
+    randomForestModel: mlResult.randomForestModel,
     simulationRunning,
     simulationSpeed,
     rainfallOverride,
     riverStageOverride,
-    physicsOverrideActive: calculatedRisk === 'CRITICAL' || calculatedRisk === 'WARNING',
+    physicsOverrideActive: mlResult.riskLevel === 'CRITICAL' || mlResult.riskLevel === 'WARNING',
   };
 
   // RF Spectrum Data Generator with high frequency smooth modulation
@@ -194,11 +147,7 @@ export function useSimulationState() {
     return points;
   }, [pttActive, noiseInjected, timePhase]);
 
-  const [spectrumData, setSpectrumData] = useState<SpectrumPoint[]>(generateSpectrumData());
-
-  useEffect(() => {
-    setSpectrumData(generateSpectrumData());
-  }, [generateSpectrumData]);
+  const spectrumData = generateSpectrumData();
 
   // Dynamic Latency & Link calculations with smooth micro jitter
   const latencyJitter = simulationRunning ? Math.round(Math.sin(timePhase * 4.0) * 2) : 0;
@@ -241,15 +190,28 @@ export function useSimulationState() {
   // User Actions
   const handleRainfallChange = (val: number) => {
     setRainfallOverride(val);
-    if (val > 140 && calculatedRisk !== 'CRITICAL') {
-      addEvent('FLOODSENSE', `Rain gauge SIL-04 accumulation threshold exceeded: ${val} mm / 6h.`, 'critical');
-    } else if (val > 90) {
-      addEvent('FLOODSENSE', `Precipitation rate increased to ${val} mm / 6h.`, 'warning');
+    setSelectedScenarioId('CUSTOM');
+    if (val > 140 && mlResult.riskLevel !== 'CRITICAL') {
+      addEvent('FLOODSENSE', `Trained ML model predicted critical catchment response at ${val} mm / 6h.`, 'critical');
+    } else if (val > 80) {
+      addEvent('FLOODSENSE', `Precipitation rate increased to ${val} mm / 6h. Sequence model updating forecast.`, 'warning');
     }
   };
 
   const handleRiverStageChange = (val: number) => {
     setRiverStageOverride(val);
+    setSelectedScenarioId('CUSTOM');
+  };
+
+  const applyStormScenario = (scenarioId: string) => {
+    setSelectedScenarioId(scenarioId);
+    const scenarios = floodMlEngine.getStormScenarios();
+    const sc = scenarios.find(s => s.id === scenarioId);
+    if (sc) {
+      setRainfallOverride(sc.rainfall6h);
+      setRiverStageOverride(sc.initialStage);
+      addEvent('FLOODSENSE', `Applied historical CWC storm scenario: ${sc.name} (${sc.actualEventDate})`, sc.rainfall6h > 100 ? 'critical' : 'info');
+    }
   };
 
   const togglePtt = () => {
@@ -298,12 +260,13 @@ export function useSimulationState() {
   const resetSimulation = () => {
     setRainfallOverride(0);
     setRiverStageOverride(0.5);
+    setSelectedScenarioId('SCENARIO_DRY_BASELINE');
     setSimulationRunning(true);
     setSimulationSpeed(1);
     setNoiseInjected(false);
     setPttActive(false);
     setActiveBearer('5G NR SA');
-    addEvent('SYSTEM', 'Console metrics reset to default telemetry baseline (min values).', 'info');
+    addEvent('SYSTEM', 'Console metrics reset to CWC baseline (dry flow 0.50m).', 'info');
   };
 
   return {
@@ -318,6 +281,10 @@ export function useSimulationState() {
     spectrumData,
     handleRainfallChange,
     handleRiverStageChange,
+    applyStormScenario,
+    selectedScenarioId,
+    stormScenarios: floodMlEngine.getStormScenarios(),
+    modelMetadata: floodMlEngine.getModelMetadata(),
     simulationRunning,
     setSimulationRunning,
     simulationSpeed,

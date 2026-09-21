@@ -49,6 +49,9 @@ export function App() {
     spectrumData,
     handleRainfallChange,
     handleRiverStageChange,
+    applyStormScenario,
+    selectedScenarioId,
+    stormScenarios,
     simulationRunning,
     setSimulationRunning,
     setSimulationSpeed,
@@ -128,6 +131,9 @@ export function App() {
             floodData={floodSenseData}
             aetherData={aetherBridgeData}
             events={events}
+            selectedScenarioId={selectedScenarioId}
+            stormScenarios={stormScenarios}
+            onSelectScenario={applyStormScenario}
             onRainfallChange={handleRainfallChange}
             onRiverStageChange={handleRiverStageChange}
             onToggleSimulation={() => setSimulationRunning(!simulationRunning)}
@@ -182,4 +188,3 @@ export function App() {
 }
 
 export default App;
-

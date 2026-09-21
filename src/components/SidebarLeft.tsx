@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Waves, Radio, Terminal, ChevronDown } from 'lucide-react';
 import type { ActiveTab, FloodSenseData, AetherBridgeData, SystemEvent } from '../types/simulation';
+import type { StormScenario } from '../models/floodMlEngine';
 import { FloodControls } from './FloodSense/FloodControls';
 import { AetherControls } from './AetherBridge/AetherControls';
 import { LatencyBudget } from './AetherBridge/LatencyBudget';
@@ -11,6 +12,9 @@ interface SidebarLeftProps {
   floodData: FloodSenseData;
   aetherData: AetherBridgeData;
   events: SystemEvent[];
+  selectedScenarioId?: string;
+  stormScenarios?: StormScenario[];
+  onSelectScenario?: (id: string) => void;
   onRainfallChange: (val: number) => void;
   onRiverStageChange: (val: number) => void;
   onToggleSimulation: () => void;
@@ -28,6 +32,9 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
   floodData,
   aetherData,
   events,
+  selectedScenarioId,
+  stormScenarios,
+  onSelectScenario,
   onRainfallChange,
   onRiverStageChange,
   onToggleSimulation,
@@ -109,6 +116,9 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
           riverStage={floodData.riverStageOverride}
           simulationRunning={floodData.simulationRunning}
           simulationSpeed={floodData.simulationSpeed}
+          selectedScenarioId={selectedScenarioId}
+          stormScenarios={stormScenarios}
+          onSelectScenario={onSelectScenario}
           onRainfallChange={onRainfallChange}
           onRiverStageChange={onRiverStageChange}
           onToggleSimulation={onToggleSimulation}

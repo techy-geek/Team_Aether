@@ -1,13 +1,17 @@
 import React from 'react';
-import { Play, Pause, RotateCcw, Sliders, CloudRain, Waves } from 'lucide-react';
+import { Play, Pause, RotateCcw, Sliders, CloudRain, Waves, Database, History } from 'lucide-react';
+import type { StormScenario } from '../../models/floodMlEngine';
 
 interface FloodControlsProps {
   rainfall: number;
   riverStage: number;
   simulationRunning: boolean;
   simulationSpeed: number;
+  selectedScenarioId?: string;
+  stormScenarios?: StormScenario[];
   onRainfallChange: (val: number) => void;
   onRiverStageChange: (val: number) => void;
+  onSelectScenario?: (id: string) => void;
   onToggleSimulation: () => void;
   onSpeedChange: (speed: number) => void;
   onReset: () => void;
@@ -18,26 +22,57 @@ export const FloodControls: React.FC<FloodControlsProps> = ({
   riverStage,
   simulationRunning,
   simulationSpeed,
+  selectedScenarioId = 'SCENARIO_DRY_BASELINE',
+  stormScenarios = [],
   onRainfallChange,
   onRiverStageChange,
+  onSelectScenario,
   onToggleSimulation,
   onSpeedChange,
   onReset,
 }) => {
   return (
-    <div className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800/80 shadow-xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] font-sans transition-colors duration-200">
+    <div className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800/80 shadow-xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] font-sans transition-colors duration-200 space-y-3.5">
 
-      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
+      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
         <div className="flex items-center space-x-2">
           <Sliders className="w-4 h-4 text-sky-700 dark:text-cyan-400" />
           <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-            Hydrological Forcing Controls
+            Hydrological ML Controls
           </h3>
         </div>
-        <span className="text-[11px] text-slate-600 dark:text-slate-400 bg-slate-100/80 dark:bg-slate-950/70 px-2.5 py-0.5 rounded-full font-medium border border-slate-200/80 dark:border-slate-800">
-          Manual Overrides
+        <span className="text-[10px] text-sky-700 dark:text-cyan-300 bg-sky-50 dark:bg-cyan-950/60 px-2.5 py-0.5 rounded-full font-semibold border border-sky-200 dark:border-cyan-800 flex items-center gap-1">
+          <Database className="w-2.5 h-2.5" />
+          <span>CWC Trained</span>
         </span>
       </div>
+
+      {/* Historical CWC Storm Preset Selector */}
+      {stormScenarios.length > 0 && onSelectScenario && (
+        <div className="space-y-1.5 bg-sky-50/50 dark:bg-slate-950/70 p-2.5 rounded-xl border border-sky-200/60 dark:border-slate-800/80">
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="flex items-center space-x-1.5 font-bold text-slate-800 dark:text-slate-200">
+              <History className="w-3.5 h-3.5 text-sky-600 dark:text-cyan-400" />
+              <span>Historical Storm Event</span>
+            </span>
+            <span className="text-[9.5px] font-mono text-slate-500 dark:text-slate-400">
+              2021-2025 CWC Data
+            </span>
+          </div>
+          <select
+            value={selectedScenarioId}
+            onChange={(e) => onSelectScenario(e.target.value)}
+            className="w-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-sky-500 cursor-pointer"
+          >
+            <option value="CUSTOM">-- Custom Parameter Tuning --</option>
+            {stormScenarios.map((sc) => (
+              <option key={sc.id} value={sc.id}>
+                {sc.name} ({sc.rainfall6h} mm)
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-3">
 
@@ -56,13 +91,13 @@ export const FloodControls: React.FC<FloodControlsProps> = ({
             type="range"
             min="0"
             max="200"
-            step="2"
+            step="1"
             value={rainfall}
             onChange={(e) => onRainfallChange(Number(e.target.value))}
             className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-600 dark:accent-cyan-400"
           />
           <div className="flex justify-between text-[10.5px] text-slate-400 dark:text-slate-500 font-medium">
-            <span>0 mm (Normal)</span>
+            <span>0 mm (Dry)</span>
             <span>100 mm (Heavy)</span>
             <span>200 mm (Extreme)</span>
           </div>
@@ -154,4 +189,3 @@ export const FloodControls: React.FC<FloodControlsProps> = ({
     </div>
   );
 };
-

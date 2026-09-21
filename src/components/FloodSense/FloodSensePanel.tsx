@@ -1,6 +1,7 @@
 import React from 'react';
 import type { FloodSenseData, HydrographPoint } from '../../types/simulation';
 import { FloodChart } from './FloodChart';
+import { ModelCards } from './ModelCards';
 
 interface FloodSensePanelProps {
   floodData: FloodSenseData;
@@ -24,7 +25,14 @@ export const FloodSensePanel: React.FC<FloodSensePanelProps> = ({
         currentRisk={floodData.riskLevel}
       />
 
+      {/* Machine Learning Model Inference Telemetry Cards */}
+      <ModelCards
+        lstmModel={floodData.lstmModel}
+        randomForestModel={floodData.randomForestModel}
+        ensembleConfidence={floodData.ensembleConfidence}
+        ensembleRisk={floodData.riskLevel}
+      />
+
     </div>
   );
 };
-
