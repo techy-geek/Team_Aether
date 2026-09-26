@@ -11,6 +11,12 @@
 **Team Aether_100 (Team ID: `NITS_100`) · National Institute of Technology Silchar**  
 *Mentor: Dr. Koushik Guha · September 2026*
 
+<br/>
+
+[![Sentinel Bridge Overview & Hardware Poster](./image.png)](./image.png)
+
+<br/>
+
 [📐 CAD & 3D Hardware Model (Google Drive)](https://drive.google.com/file/d/1Ka_F5BRAXkGf56-jew4U-lu_tEWLgjRq/view) • [📄 Technical Documentation PDF](./AetherBridge%20—%20Technical%20Documentation%20(Aether_100,%20SIH%202026).pdf) • [⚡ Live EOC Operations Console](#-live-eoc-operations-console--ui) • [🛠️ Hardware Circuit](#-hardware-circuit--electrical-design)
 
 ---
@@ -32,6 +38,7 @@ Commercial Radio-over-IP (RoIP) appliances are expensive proprietary imports cos
 
 | Resource | Description | Direct Link |
 | :--- | :--- | :--- |
+| 🖼️ **System Poster & Hardware Overview** | High-resolution architectural diagram, leaf node CAD preview & bench prototype setup | [**View System Infographic**](./image.png) |
 | 📐 **CAD 3D Enclosure & Enclosure Design** | Complete 3D CAD assembly, STEP/DWG files & mounting chassis for Raspberry Pi + audio interface board | [**Google Drive CAD Link**](https://drive.google.com/file/d/1Ka_F5BRAXkGf56-jew4U-lu_tEWLgjRq/view) |
 | 📄 **Hardware Technical Documentation** | Full 7-page engineering documentation covering circuit schematics, ground-loop math, optocoupler saturation, and RF bench test results | [**View PDF in Repository**](./AetherBridge%20—%20Technical%20Documentation%20(Aether_100,%20SIH%202026).pdf) |
 | 🧠 **ML Model Training Pipeline** | Synthetic & historical hydrograph training script with LSTM and Random Forest export | [`scripts/train_flood_models.py`](./scripts/train_flood_models.py) |
